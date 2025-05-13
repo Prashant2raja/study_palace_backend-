@@ -32,7 +32,7 @@ const db = mysql.createPool({
   // password: process.env.DB_PASS || 'raja1234',
   // database: process.env.DB_NAME || 'studyProject',
   Host: containers-us-west-XX.railway.app
-Port: 12345
+const port = process.env.PORT || 12345;
 User: root
 Password: yourpassword
 Database: railway
