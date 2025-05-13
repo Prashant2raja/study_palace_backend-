@@ -27,19 +27,14 @@ const mailer = nodemailer.createTransport({
 
 // MySQL pool
 const db = mysql.createPool({
-  // host: process.env.DB_HOST || 'localhost',
-  // user: process.env.DB_USER || 'root',
-  // password: process.env.DB_PASS || 'raja1234',
-  // database: process.env.DB_NAME || 'studyProject',
-  Host: containers-us-west-XX.railway.app
-const port = process.env.PORT || 12345;
-User: root
-Password: yourpassword
-Database: railway
-
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASS || 'yourpassword',
+  database: process.env.DB_NAME || 'railway',
   waitForConnections: true,
   connectionLimit: 10,
 });
+
 
 const JWT_SECRET = process.env.JWT_SECRET || 'yourSecretKey';
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS, 10) || 10;
