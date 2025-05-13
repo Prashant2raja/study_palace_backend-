@@ -27,13 +27,15 @@ const mailer = nodemailer.createTransport({
 
 // MySQL pool
 const db = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || 'yourpassword',
-  database: process.env.DB_NAME || 'railway',
+  host            : process.env.DB_HOST,
+  port            : process.env.DB_PORT,
+  user            : process.env.DB_USER,
+  password        : process.env.DB_PASS,
+  database        : process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit : 10,
 });
+
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'yourSecretKey';
