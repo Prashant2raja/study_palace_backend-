@@ -503,6 +503,18 @@ app.post('/api/reset-password/:token', async (req, res) => {
   }
 });
 
+// Example in Express.js
+app.get('/test-db', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT 1'); // use your DB client here
+    res.send('Database connection successful');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database connection failed');
+  }
+});
+
+
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
