@@ -513,17 +513,6 @@ app.get('/test-db', async (req, res) => {
     res.status(500).send('Database connection failed');
   }
 });
-app.get('/test-users', async (req, res) => {
-  try {
-    const [rows] = await conn.query('SELECT * FROM users LIMIT 5');
-    return res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Query failed');
-  }
-});
-;
-
 
 // Start server
 const PORT = process.env.PORT || 8080;
