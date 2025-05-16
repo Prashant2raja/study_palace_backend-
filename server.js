@@ -515,13 +515,14 @@ app.get('/test-db', async (req, res) => {
 });
 app.get('/test-users', async (req, res) => {
   try {
-    const [rows] = await conn.query('SELECT * FROM bookings LIMIT 5');
+    const [rows] = await conn.query('SELECT * FROM users LIMIT 5');
     return res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).send('Query failed');
   }
 });
+;
 
 
 // Start server
