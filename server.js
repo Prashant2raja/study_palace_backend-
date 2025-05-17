@@ -39,7 +39,17 @@ const db = mysql.createPool({
   password           : process.env.DB_PASS,
   database           : process.env.DB_NAME,
   waitForConnections : true,
-  connectionLimit    : 10
+  connectionLimit    : 10,
+  connectTimeout     : 10000
+});
+
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('DB connection error:', err);
+  } else {
+    console.log('Connected to MySQL');
+    connection.release();
+  }
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'yourSecretKey';
