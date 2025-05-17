@@ -129,6 +129,11 @@ function authenticateToken(req, res, next) {
   });
 }
 
+app.get('/', (req, res) => {
+  res.send('API is running');
+});
+
+
 // --- SIGNUP (users only) ---
 app.post('/api/signup', upload.single('photo'), [
     body('fullName').trim().notEmpty(),
