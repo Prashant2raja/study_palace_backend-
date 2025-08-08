@@ -220,7 +220,7 @@ app.delete('/api/admin/user/:id', authenticateToken, async (req, res) => {
 });
 
 // --- UPDATE USER SIGNUP RECORD ---
-app.put('/api/signup/:id', authenticateToken, async (req, res) => {
+app.put('/admin/user/:id', authenticateToken, async (req, res) => {
   const userId = req.params.id;
   const {
     name, father_name, mob_number, email, address, gov_id,
