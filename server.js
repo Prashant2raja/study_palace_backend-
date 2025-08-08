@@ -333,6 +333,29 @@ app.get('/api/user/:email', authenticateToken, async (req, res) => {
   }
 });
 
+// --- ADMIN: DELETE USER RECORD ---
+app.delete('/api/admin/user/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+
+  const userId = req.params.id;
+  try {
+    // Optional: Delete bookings first if ON DELETE CASCADE is not set
+    await db.execute('DELETE FROM bookings WHERE user_id = ?', [userId]);
+
+    // Delete user from signup table
+    const [result] = await db.execute('DELETE FROM signup WHERE id = ?', [userId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Admin delete error:', err);
+    res.status(500).json({ error: 'Server error during delete' });
+  }
+});
+
+
 // --- UPDATE USER PROFILE ---
 app.put(
   '/api/user/:email',
