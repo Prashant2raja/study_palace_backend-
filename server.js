@@ -1,3 +1,4 @@
+You said:
 require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2/promise');
@@ -59,13 +60,13 @@ const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS, 10) || 10;
 (async () => {
   try {
     await db.execute(
-      `CREATE TABLE IF NOT EXISTS admin (
+      CREATE TABLE IF NOT EXISTS admin (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )`
+      )
     );
     const [admins] = await db.execute('SELECT id FROM admin');
     if (!admins.length) {
@@ -77,16 +78,16 @@ const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS, 10) || 10;
         'INSERT INTO admin (name, email, password) VALUES (?, ?, ?)',
         [defaultName, defaultEmail, hash]
       );
-      console.log(`Default admin created: ${defaultEmail}`);
+      console.log(Default admin created: ${defaultEmail});
     }
 
     await db.execute(
-      `CREATE TABLE IF NOT EXISTS login_logs (
+      CREATE TABLE IF NOT EXISTS login_logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(100) NOT NULL,
         role ENUM('user','admin') NOT NULL DEFAULT 'user',
         logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )`
+      )
     );
 
     console.log('Database tables are ready');
@@ -106,7 +107,7 @@ if (process.env.NODE_ENV === 'production') {
   app.enable('trust proxy');
   app.use((req, res, next) => {
     if (req.secure) return next();
-    res.redirect(`https://${req.headers.host}${req.url}`);
+    res.redirect(https://${req.headers.host}${req.url});
   });
 }
 
@@ -155,9 +156,9 @@ app.post('/api/signup', upload.single('photo'), [
       if (existing.length) return res.status(409).json({ error: 'Email already registered.' });
 
       const hashed = await bcrypt.hash(password, SALT_ROUNDS);
-      const insertSql = `INSERT INTO signup
+      const insertSql = INSERT INTO signup
         (name, father_name, mob_number, email, password, photo, address, gov_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
       const [result] = await db.execute(insertSql, [
         fullName, fatherName, phone, email, hashed, photo, address, govId
       ]);
@@ -183,7 +184,7 @@ app.post('/api/login', [
     const { email, password, role } = req.body;
     const table = role === 'admin' ? 'admin' : 'signup';
     try {
-      const [rows] = await db.execute(`SELECT * FROM \`${table}\` WHERE email = ?`, [email]);
+      const [rows] = await db.execute(SELECT * FROM \${table}\ WHERE email = ?, [email]);
       if (!rows.length) return res.status(401).json({ error: 'Invalid credentials.' });
       const user = rows[0];
       const match = await bcrypt.compare(password, user.password);
@@ -237,9 +238,9 @@ app.put('/api/admin/user/:id', async (req, res) => {
 
   try {
     const [result] = await db.query(
-      `UPDATE signup 
+      UPDATE signup 
        SET name=?, father_name=?, mob_number=?, email=?, address=?, gov_id=?, seat_number=?, time_slot=?, updated_at=NOW()
-       WHERE id=?`,
+       WHERE id=?,
       [name, father_name, mob_number, email, address, gov_id, seat_number, time_slot, id]
     );
 
@@ -276,7 +277,7 @@ app.put('/admin/user/:id', authenticateToken, async (req, res) => {
 
     if (fields.length) {
       await db.execute(
-        `UPDATE signup SET ${fields.join(', ')} WHERE id = ?`,
+        UPDATE signup SET ${fields.join(', ')} WHERE id = ?,
         [...params, userId]
       );
     }
@@ -289,12 +290,12 @@ app.put('/admin/user/:id', authenticateToken, async (req, res) => {
       if (time_slot)   bookingFields.push('time_slot   = ?'), bookingParams.push(time_slot);
 
       await db.execute(
-        `UPDATE bookings SET ${bookingFields.join(', ')} WHERE user_id = ?`,
+        UPDATE bookings SET ${bookingFields.join(', ')} WHERE user_id = ?,
         [...bookingParams, userId]
       );
 
       await db.execute(
-        `UPDATE signup SET seat_number = ?, time_slot = ? WHERE id = ?`,
+        UPDATE signup SET seat_number = ?, time_slot = ? WHERE id = ?,
         [seat_number || null, time_slot || null, userId]
       );
     }
@@ -302,7 +303,7 @@ app.put('/admin/user/:id', authenticateToken, async (req, res) => {
     const [rows] = await db.execute('SELECT * FROM signup WHERE id = ?', [userId]);
     const updated = rows[0];
     updated.photo = updated.photo
-      ? `${req.protocol}://${req.get('host')}/uploads/${updated.photo}`
+      ? ${req.protocol}://${req.get('host')}/uploads/${updated.photo}
       : null;
 
     res.json(updated);
@@ -315,14 +316,14 @@ app.put('/admin/user/:id', authenticateToken, async (req, res) => {
 // --- ADMIN: FETCH ALL BOOKINGS ---
 app.get('/api/admin/book', authenticateToken, async (req, res) => {
   try {
-    const [rows] = await db.execute(`
+    const [rows] = await db.execute(
       SELECT 
         b.id, b.seat_number, b.time_slot, b.created_at, b.paid,
         u.name AS user_name, u.email AS user_email
       FROM bookings b
       JOIN signup u ON b.user_id = u.id
       ORDER BY b.created_at DESC
-    `);
+    );
     res.json(rows);
   } catch (err) {
     console.error('Admin fetch bookings error:', err);
@@ -336,7 +337,7 @@ app.get('/api/signup', async (req, res) => {
     const [rows] = await db.execute('SELECT * FROM signup');
     const data = rows.map(r => ({
       ...r,
-      photo: r.photo ? `${req.protocol}://${req.get('host')}/uploads/${r.photo}` : null
+      photo: r.photo ? ${req.protocol}://${req.get('host')}/uploads/${r.photo} : null
     }));
     res.json(data);
   } catch (err) {
@@ -353,16 +354,16 @@ app.get('/api/user/:email', authenticateToken, async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: 'User not found.' });
     const user = rows[0];
     user.photo = user.photo
-      ? `${req.protocol}://${req.get('host')}/uploads/${user.photo}`
+      ? ${req.protocol}://${req.get('host')}/uploads/${user.photo}
       : null;
 
-    const [[booking]] = await db.execute(`
+    const [[booking]] = await db.execute(
       SELECT id, seat_number, time_slot, created_at, COALESCE(paid,0) AS paid
       FROM bookings
       WHERE user_id = ?
       ORDER BY id DESC
       LIMIT 1
-    `, [user.id]);
+    , [user.id]);
 
     if (booking) {
       const created = new Date(booking.created_at).getTime();
@@ -431,14 +432,14 @@ app.put(
       if (!fields.length) return res.status(400).json({ error: 'No fields to update.' });
 
       fields.push('updated_at = CURRENT_TIMESTAMP');
-      const sql = `UPDATE signup SET ${fields.join(', ')} WHERE email = ?`;
+      const sql = UPDATE signup SET ${fields.join(', ')} WHERE email = ?;
       paramsArr.push(req.params.email);
       await db.execute(sql, paramsArr);
 
       const [rows2] = await db.execute('SELECT * FROM signup WHERE email = ?', [req.params.email]);
       const updated = rows2[0];
       updated.photo = updated.photo
-        ? `${req.protocol}://${req.get('host')}/uploads/${updated.photo}`
+        ? ${req.protocol}://${req.get('host')}/uploads/${updated.photo}
         : null;
       delete updated.password;
       res.json(updated);
@@ -541,13 +542,13 @@ app.post('/api/forgot-password', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Email not registered' });
 
     const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '15m' });
-    const link = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+    const link = ${process.env.FRONTEND_URL}/reset-password/${token};
 
     await mailer.sendMail({
       to: email,
       from: process.env.GMAIL_USER,
       subject: '🔑 Reset Your Password',
-      html: `<p>Click <a href=\"${link}\">here</a> to reset your password. This link expires in 15 minutes.</p>`
+      html: <p>Click <a href=\"${link}\">here</a> to reset your password. This link expires in 15 minutes.</p>
     });
 
     res.json({ message: 'Reset link sent.' });
@@ -587,5 +588,5 @@ app.get('/test-db', async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(Server running on port ${PORT});
 });
