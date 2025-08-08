@@ -201,14 +201,21 @@ app.post('/api/login', [
 );
 
 // --- UPDATE USER SIGNUP RECORD ---
-app.put('/api/signup/:id', authenticateToken, async (req, res) => {
+app.put('/api/signup/:id', async (req, res) => {
   const userId = req.params.id;
   const {
-    name, father_name, mob_number, email, address, gov_id,
-    seat_number, time_slot
+    name,
+    father_name,
+    mob_number,
+    email,
+    address,
+    gov_id,
+    seat_number,
+    time_slot
   } = req.body;
 
   try {
+    // 1) Update signup table fields
     const fields = [];
     const params = [];
 
@@ -226,6 +233,7 @@ app.put('/api/signup/:id', authenticateToken, async (req, res) => {
       );
     }
 
+    // 2) If seat_number or time_slot changed, update bookings table
     if (seat_number || time_slot) {
       const bookingFields = [];
       const bookingParams = [];
@@ -238,12 +246,14 @@ app.put('/api/signup/:id', authenticateToken, async (req, res) => {
         [...bookingParams, userId]
       );
 
+      // Also reflect back into signup for consistency (optional)
       await db.execute(
         `UPDATE signup SET seat_number = ?, time_slot = ? WHERE id = ?`,
         [seat_number || null, time_slot || null, userId]
       );
     }
 
+    // 3) Return updated record
     const [rows] = await db.execute('SELECT * FROM signup WHERE id = ?', [userId]);
     const updated = rows[0];
     updated.photo = updated.photo
