@@ -200,26 +200,62 @@ app.post('/api/login', [
   }
 );
 
-app.delete('/api/admin/user/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+// app.delete('/api/admin/user/:id', authenticateToken, async (req, res) => {
+//   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
 
-  const userId = req.params.id;
+//   const userId = req.params.id;
+//   try {
+//     await db.execute('DELETE FROM bookings WHERE user_id = ?', [userId]);
+//     const [result] = await db.execute('DELETE FROM signup WHERE id = ?', [userId]);
+
+//     if (result.affectedRows === 0) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     res.json({ message: 'User deleted successfully' });
+//   } catch (err) {
+//     console.error('Delete error:', err);
+//     res.status(500).json({ error: 'Server error during delete' });
+//   }
+// });
+
+// --- UPDATE USER SIGNUP RECORD ---
+
+
+app.put('/api/admin/user/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    father_name,
+    mob_number,
+    email,
+    address,
+    gov_id,
+    seat_number,
+    time_slot,
+  } = req.body;
+
   try {
-    await db.execute('DELETE FROM bookings WHERE user_id = ?', [userId]);
-    const [result] = await db.execute('DELETE FROM signup WHERE id = ?', [userId]);
+    const [result] = await db.query(
+      `UPDATE signup 
+       SET name=?, father_name=?, mob_number=?, email=?, address=?, gov_id=?, seat_number=?, time_slot=?, updated_at=NOW()
+       WHERE id=?`,
+      [name, father_name, mob_number, email, address, gov_id, seat_number, time_slot, id]
+    );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ message: 'User deleted successfully' });
+    res.json({ success: true, message: 'User updated successfully' });
   } catch (err) {
-    console.error('Delete error:', err);
-    res.status(500).json({ error: 'Server error during delete' });
+    console.error('Update error:', err);
+    res.status(500).json({ error: 'Update failed' });
   }
 });
 
-// --- UPDATE USER SIGNUP RECORD ---
+
+
 app.put('/admin/user/:id', authenticateToken, async (req, res) => {
   const userId = req.params.id;
   const {
